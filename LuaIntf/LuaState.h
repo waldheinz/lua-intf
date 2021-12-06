@@ -32,8 +32,9 @@
 #include "LuaCompat.h"
 #include <cassert>
 #include <cstring>
-#include <string>
 #include <exception>
+#include <string>
+#include <type_traits>
 
 #if LUAINTF_STD_WIDE_STRING
 #include <locale>
@@ -114,7 +115,7 @@ namespace Lua
     template <typename LIST>
     inline void pushList(lua_State* L, const LIST& list)
     {
-        lua_newtable(L);
+        lua_createtable(L, list.size(), 0);
         int i = 1;
         for (auto& v : list) {
             push(L, v);
@@ -144,7 +145,12 @@ namespace Lua
     template <typename MAP>
     inline void pushMap(lua_State* L, const MAP& map)
     {
-        lua_newtable(L);
+        if constexpr (std::is_integral_v<typename MAP::key_type>) {
+            lua_createtable(L, map.size(), 0);
+        } else {
+            lua_createtable(L, 0, map.size());
+        }
+
         for (auto it = map.begin(); it != map.end(); ++it) {
             push(L, it->first);
             push(L, it->second);
