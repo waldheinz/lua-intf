@@ -108,11 +108,11 @@ public:
      * @throw LuaException if V are not convertible to Lua types
      */
     template <typename V>
-    LuaTableRef& operator = (const V& value)
+    LuaTableRef& operator = (V && value)
     {
         lua_rawgeti(L, LUA_REGISTRYINDEX, m_table);
         lua_rawgeti(L, LUA_REGISTRYINDEX, m_key);
-        Lua::push(L, value);
+        Lua::push(L, std::forward<V>(value));
         lua_settable(L, -3);
         lua_pop(L, 1);
         return *this;
@@ -698,9 +698,9 @@ public:
      * This may raise Lua error or throw LuaException if value is not convertible.
      */
     template <typename T>
-    static LuaRef fromValue(lua_State* L, const T& value)
+    static LuaRef fromValue(lua_State* L, T && value)
     {
-        Lua::push(L, value);
+        Lua::push(L, std::forward<T>(value));
         return popFromStack(L);
     }
 
@@ -833,10 +833,10 @@ public:
      * @return field value
      */
     template <typename V = LuaRef, typename K>
-    V rawget(const K& key) const
+    V rawget(K && key) const
     {
         pushToStack();
-        Lua::push(L, key);
+        Lua::push(L, std::forward<K>(key));
         lua_rawget(L, -2);
         V v = Lua::get<V>(L, -1);
         lua_pop(L, 2);
@@ -852,10 +852,10 @@ public:
      * @return field value
      */
     template <typename V, typename K>
-    V rawget(const K& key, const V& def) const
+    V rawget(K && key, const V& def) const
     {
         pushToStack();
-        Lua::push(L, key);
+        Lua::push(L, std::forward<K>(key));
         lua_rawget(L, -2);
         V v = Lua::opt<V>(L, -1, def);
         lua_pop(L, 2);
@@ -870,11 +870,11 @@ public:
      * @param value field value
      */
     template <typename K, typename V>
-    void rawset(const K& key, const V& value)
+    void rawset(K && key, V && value)
     {
         pushToStack();
-        Lua::push(L, key);
-        Lua::push(L, value);
+        Lua::push(L, std::forward<K>(key));
+        Lua::push(L, std::forward<V>(value));
         lua_rawset(L, -3);
         lua_pop(L, 1);
     }
@@ -1043,10 +1043,10 @@ public:
      * @return true if field is available
      */
     template <typename K>
-    bool has(const K& key) const
+    bool has(K && key) const
     {
         pushToStack();
-        Lua::push(L, key);
+        Lua::push(L, std::forward<K>(key));
         lua_gettable(L, -2);
         bool ok = !lua_isnoneornil(L, -1);
         lua_pop(L, 2);
@@ -1061,10 +1061,10 @@ public:
      * @return field value
      */
     template <typename V = LuaRef, typename K>
-    V get(const K& key) const
+    V get(K && key) const
     {
         pushToStack();
-        Lua::push(L, key);
+        Lua::push(L, std::forward<K>(key));
         lua_gettable(L, -2);
         V t = Lua::get<V>(L, -1);
         lua_pop(L, 2);
@@ -1080,10 +1080,10 @@ public:
      * @return field value
      */
     template <typename V, typename K>
-    V get(const K& key, const V& def) const
+    V get(K && key, const V& def) const
     {
         pushToStack();
-        Lua::push(L, key);
+        Lua::push(L, std::forward<K>(key));
         lua_gettable(L, -2);
         V t = Lua::opt<V>(L, -1, def);
         lua_pop(L, 2);
@@ -1098,10 +1098,10 @@ public:
      * @param value field value
      */
     template <typename K, typename V>
-    void set(const K& key, const V& value)
+    void set(K && key, const V& value)
     {
         pushToStack();
-        Lua::push(L, key);
+        Lua::push(L, std::forward<K>(key));
         Lua::push(L, value);
         lua_settable(L, -3);
         lua_pop(L, 1);
@@ -1114,10 +1114,10 @@ public:
      * @param key field key
      */
     template <typename K>
-    void remove(const K& key)
+    void remove(K && key)
     {
         pushToStack();
-        Lua::push(L, key);
+        Lua::push(L, std::forward<K>(key));
         lua_pushnil(L);
         lua_settable(L, -3);
         lua_pop(L, 1);
@@ -1142,10 +1142,10 @@ public:
      * @return assignable and convertible handle for specified key in this table
      */
     template <typename K>
-    LuaTableRef operator [] (const K& key)
+    LuaTableRef operator [] (K && key)
     {
         assert(L);
-        Lua::push(L, key);
+        Lua::push(L, std::forward<K>(key));
         return LuaTableRef(L, m_ref, luaL_ref(L, LUA_REGISTRYINDEX));
     }
 
@@ -1157,10 +1157,10 @@ public:
      * @return convertible handle for specified key in this table
      */
     template <typename K>
-    const LuaTableRef operator [] (const K& key) const
+    const LuaTableRef operator [] (K && key) const
     {
         assert(L);
-        Lua::push(L, key);
+        Lua::push(L, std::forward<K>(key));
         return LuaTableRef(L, m_ref, luaL_ref(L, LUA_REGISTRYINDEX));
     }
 
