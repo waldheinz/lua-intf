@@ -25,7 +25,7 @@
 //
 
 #ifndef LUAINTF_H
-    #include "LuaIntf/LuaIntf.h"
+    #include "include/LuaIntf.h"
     using namespace LuaIntf;
 #endif
 
@@ -63,7 +63,7 @@ LUA_INLINE int CppBindClassMetaMethod::index(lua_State* L)
             break;
         }
 
-        
+
         // get metatable.getters -> <mt> <getters>
         lua_pop(L, 1);                  // pop nil
 

@@ -25,7 +25,7 @@
 //
 
 #ifndef LUAINTF_H
-    #include "LuaIntf/LuaIntf.h"
+    #include "include/LuaIntf.h"
     using namespace LuaIntf;
 #endif
 
@@ -143,4 +143,3 @@ LUA_INLINE CppObject* CppObject::getObject(lua_State* L, int index, void* class_
 
     return static_cast<CppObject*>(lua_touserdata(L, index));
 }
-

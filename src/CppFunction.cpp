@@ -25,7 +25,7 @@
 //
 
 #ifndef LUAINTF_H
-    #include "LuaIntf/LuaIntf.h"
+    #include "include/LuaIntf.h"
     using namespace LuaIntf;
 #endif
 

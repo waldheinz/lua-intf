@@ -21,7 +21,7 @@ http://lua-users.org/wiki/ErrorHandlingBetweenLuaAndCplusplus
 If you really want to use Lua library compiled under C and want to live with `longjmp` issues, you can define `LUAINTF_LINK_LUA_COMPILED_IN_CXX` to 0 before including `lua-intf` headers:
 ````c++
 #define LUAINTF_LINK_LUA_COMPILED_IN_CXX 0
-#include "LuaIntf/LuaIntf.h"
+#include "include/LuaIntf.h"
 ````
 
 Compile Lua library in C++
