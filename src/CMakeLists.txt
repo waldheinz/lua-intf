@@ -29,7 +29,7 @@ target_include_directories(LuaIntf
 
 if(ENABLE_BENCH)
     find_package(benchmark REQUIRED)
-    target_compile_options(LuaIntf PRIVATE -Werror -Wall -Wextra -g -O3)
+    target_compile_options(LuaIntf PRIVATE -fno-omit-frame-pointer -DNDEBUG -Werror -Wall -Wextra -g -O3)
     add_executable(bench
         bench/class.cpp
         bench/main.cpp
@@ -37,6 +37,7 @@ if(ENABLE_BENCH)
         bench/unordered_map.cpp
         bench/vector.cpp
     )
+    target_compile_options(bench PRIVATE -fno-omit-frame-pointer -DNDEBUG -Werror -Wall -Wextra -g -O3)
     target_link_libraries(bench benchmark::benchmark LuaIntf)
 endif()
 
