@@ -439,8 +439,12 @@ private:
         if (buildMetaTable(meta, parent_meta, name,
             CppSignature<T>::value(), CppClassSignature<T>::value(), CppConstSignature<T>::value()))
         {
-            meta.rawget("___class").rawset("__gc", &CppBindClassDestructor<T, false>::call);
-            meta.rawget("___const").rawset("__gc", &CppBindClassDestructor<T, true>::call);
+            static_assert(std::is_destructible_v<T>, "cannot access destructor");
+
+            if constexpr (!std::is_trivially_destructible_v<T>) {
+                meta.rawget("___class").rawset("__gc", &CppBindClassDestructor<T, false>::call);
+                meta.rawget("___const").rawset("__gc", &CppBindClassDestructor<T, true>::call);
+            }
         }
         return CppBindClass<T, PARENT>(meta);
     }
@@ -460,8 +464,12 @@ private:
         if (buildMetaTable(meta, parent_meta, name,
             CppSignature<T>::value(), CppClassSignature<T>::value(), CppConstSignature<T>::value(), CppSignature<SUPER>::value()))
         {
-            meta.rawget("___class").rawset("__gc", &CppBindClassDestructor<T, false>::call);
-            meta.rawget("___const").rawset("__gc", &CppBindClassDestructor<T, true>::call);
+            static_assert(std::is_destructible_v<T>, "cannot access destructor");
+
+            if constexpr (!std::is_trivially_destructible_v<T>) {
+                meta.rawget("___class").rawset("__gc", &CppBindClassDestructor<T, false>::call);
+                meta.rawget("___const").rawset("__gc", &CppBindClassDestructor<T, true>::call);
+            }
 
 #if LUAINTF_AUTO_DOWNCAST
             CppAutoDowncast::add<T, SUPER>(meta.state());
@@ -1002,4 +1010,3 @@ public:
         return PARENT(m_meta.rawget("___parent"));
     }
 };
-
