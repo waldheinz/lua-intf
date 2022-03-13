@@ -1192,23 +1192,19 @@ private:
     }
 
     template <typename T>
-    static typename std::enable_if<!std::is_destructible<T>::value || std::is_trivially_destructible<T>::value>::type
-        pushUserDataFrom(lua_State* L, const T& cpp_obj)
+    static void pushUserDataFrom(lua_State* L, const T& cpp_obj)
     {
         void* userdata = lua_newuserdata(L, sizeof(T));
         ::new (userdata) T(cpp_obj);
-    }
 
-    template <typename T>
-    static typename std::enable_if<std::is_destructible<T>::value && !std::is_trivially_destructible<T>::value>::type
-        pushUserDataFrom(lua_State* L, const T& cpp_obj)
-    {
-        void* userdata = lua_newuserdata(L, sizeof(T));
-        ::new (userdata) T(cpp_obj);
-        lua_newtable(L);
-        lua_pushcfunction(L, &destructUserData<T>);
-        lua_setfield(L, -2, "__gc");
-        lua_setmetatable(L, -2);
+        static_assert(std::is_destructible_v<T>, "cannot access destructor");
+
+        if constexpr (std::is_trivially_destructible_v<T>) {
+            lua_newtable(L);
+            lua_pushcfunction(L, &destructUserData<T>);
+            lua_setfield(L, -2, "__gc");
+            lua_setmetatable(L, -2);
+        }
     }
 
     template <typename T>
