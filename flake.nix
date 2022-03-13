@@ -15,7 +15,7 @@
         packages.liblua-intf = liblua-intf;
         defaultPackage = self.packages.${system}.liblua-intf;
         devShell = pkgs.mkShell {
-          buildInputs = [ pkgs.hello pkgs.cowsay ];
+          buildInputs = with pkgs; [ linuxPackages.perf ];
           inputsFrom = [ self.packages.${system}.liblua-intf ];
         };
       }

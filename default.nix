@@ -1,8 +1,14 @@
-{ stdenv, cmake, lua }:
+{ stdenv, cmake, lua5_4, gbenchmark ? null }:
 
-stdenv.mkDerivation {
+let
+  # a Lua compiled with C++ for exception support
+  lua-cpp = lua5_4.overrideAttrs (old: {
+    makeFlags = old.makeFlags ++ [ "CC=${stdenv.cc.targetPrefix}c++" ];
+  });
+
+in stdenv.mkDerivation {
   name = "LuaIntf";
   src = ./src;
   nativeBuildInputs = [ cmake ];
-  buildInputs = [ lua ];
+  buildInputs = [ lua-cpp gbenchmark ];
 }

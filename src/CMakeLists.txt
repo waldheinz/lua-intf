@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.15)
 project(LuaIntf LANGUAGES CXX)
 include(GNUInstallDirs)
 
+option(ENABLE_BENCH, "Build Benchmarks")
+
 find_package(Lua REQUIRED)
 
 add_library(LuaIntf SHARED
@@ -24,6 +26,12 @@ target_include_directories(LuaIntf
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
+
+if(ENABLE_BENCH)
+    find_package(benchmark REQUIRED)
+    add_executable(bench bench/main.cpp)
+    target_link_libraries(bench benchmark::benchmark LuaIntf)
+endif()
 
 install(
     FILES
