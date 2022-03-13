@@ -67,7 +67,7 @@ LUA_INLINE int CppBindClassMetaMethod::index(lua_State* L)
         // get metatable.getters -> <mt> <getters>
         lua_pop(L, 1);                  // pop nil
 
-        if (lua_isnumber(L, 2)) {
+        if (lua_type(L, 2) == LUA_TNUMBER) {
             lua_pushliteral(L, "___get_indexed");
             lua_rawget(L, -2);
 
@@ -160,7 +160,7 @@ LUA_INLINE int CppBindClassMetaMethod::newIndex(lua_State* L)
     }
 
     for (;;) {
-        if (lua_isnumber(L, 2)) {
+        if (lua_type(L, 2) == LUA_TNUMBER) {
             lua_pushliteral(L, "___set_indexed");
             lua_rawget(L, -2);
 
