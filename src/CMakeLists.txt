@@ -29,7 +29,9 @@ target_include_directories(LuaIntf
 
 if(ENABLE_BENCH)
     find_package(benchmark REQUIRED)
+    target_compile_options(LuaIntf PRIVATE -Werror -Wall -Wextra -g -O3)
     add_executable(bench
+        bench/class.cpp
         bench/main.cpp
         bench/string.cpp
         bench/unordered_map.cpp
