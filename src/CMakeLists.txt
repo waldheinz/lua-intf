@@ -29,7 +29,12 @@ target_include_directories(LuaIntf
 
 if(ENABLE_BENCH)
     find_package(benchmark REQUIRED)
-    add_executable(bench bench/main.cpp)
+    add_executable(bench
+        bench/main.cpp
+        bench/string.cpp
+        bench/unordered_map.cpp
+        bench/vector.cpp
+    )
     target_link_libraries(bench benchmark::benchmark LuaIntf)
 endif()
 
