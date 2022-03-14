@@ -154,7 +154,7 @@ namespace Lua
         for (auto it = map.begin(); it != map.end(); ++it) {
             push(L, it->first);
             push(L, it->second);
-            lua_settable(L, -3);
+            lua_rawset(L, -3);
         }
     }
 
