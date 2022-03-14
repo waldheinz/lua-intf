@@ -229,6 +229,16 @@ static void class_prop_set_double(benchmark::State & state) {
     }
 }
 
+static void class_register(benchmark::State & state) {
+    using namespace LuaIntf;
+
+    LuaContext ctx { false };
+
+    for (auto _ : state) {
+        register_lua(ctx);
+    }
+}
+
 BENCHMARK(class_call_method);
 BENCHMARK(class_callback);
 BENCHMARK(class_ctr);
@@ -236,3 +246,4 @@ BENCHMARK(class_prop_get_class);
 BENCHMARK(class_prop_get_double);
 BENCHMARK(class_prop_set_class);
 BENCHMARK(class_prop_set_double);
+BENCHMARK(class_register);
