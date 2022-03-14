@@ -158,6 +158,21 @@ namespace Lua
         }
     }
 
+    template<typename K, typename V>
+    void pushTable(lua_State * L, std::initializer_list<std::tuple<K, V>> list) {
+        if constexpr (std::is_integral_v<K>) {
+            lua_createtable(L, list.size(), 0);
+        } else {
+            lua_createtable(L, 0, list.size());
+        }
+
+        for (auto const & [k, v] : list) {
+            push(L, k);
+            push(L, v);
+            lua_rawset(L, -3);
+        }
+    }
+
     /**
      * Get STL-style map from Lua table at the given index.
      */
