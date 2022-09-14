@@ -1199,7 +1199,7 @@ private:
 
         static_assert(std::is_destructible_v<T>, "cannot access destructor");
 
-        if constexpr (std::is_trivially_destructible_v<T>) {
+        if constexpr (!std::is_trivially_destructible_v<T>) {
             lua_newtable(L);
             lua_pushcfunction(L, &destructUserData<T>);
             lua_setfield(L, -2, "__gc");
