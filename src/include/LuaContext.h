@@ -27,6 +27,9 @@
 #ifndef LUACONTEXT_H
 #define LUACONTEXT_H
 
+#include <cstdint>
+#include <type_traits>
+
 //---------------------------------------------------------------------------
 
 #include "LuaRef.h"
