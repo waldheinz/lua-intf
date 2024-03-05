@@ -262,6 +262,33 @@ namespace Lua
 
 //---------------------------------------------------------------------------
 
+class TablePusher {
+    lua_State * L;
+    const size_t sz;
+    size_t elements = 0;
+
+    TablePusher(TablePusher const &) = delete;
+    TablePusher & operator=(TablePusher const &) = delete;
+public:
+    TablePusher(lua_State * L, size_t sz) : L(L), sz(sz) { }
+    ~TablePusher() { assert(elements <= sz); }
+
+    template<typename V>
+    TablePusher & push(std::string_view k, V && v) {
+        if  (elements == 0) {
+            lua_createtable(L, 0, sz);
+        }
+
+        Lua::push(L, k);
+        Lua::push(L, std::forward<V>(v));
+        lua_rawset(L, -3);
+        ++elements;
+        return *this;
+    }
+};
+
+//---------------------------------------------------------------------------
+
 class LuaState
 {
 public:

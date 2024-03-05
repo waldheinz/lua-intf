@@ -38,6 +38,21 @@ static void global_set_table(benchmark::State & state) {
     }
 }
 
+static void global_set_via_pusher(benchmark::State & state) {
+    LuaIntf::LuaContext ctx { false };
+    for (auto _ : state) {
+        {
+            LuaIntf::TablePusher p(ctx, 4);
+            p.push("x", 1)
+             .push("y", 1)
+             .push("w", 1)
+             .push("h", 1);
+        }
+
+        LuaIntf::Lua::pop(ctx);
+    }
+}
+
 static void global_set_table_slow(benchmark::State & state) {
     LuaIntf::LuaContext ctx { false };
 
@@ -59,5 +74,6 @@ BENCHMARK(global_call);
 BENCHMARK(global_set_number);
 BENCHMARK(global_set_table_slow);
 BENCHMARK(global_set_table);
+BENCHMARK(global_set_via_pusher);
 
 BENCHMARK_MAIN();
