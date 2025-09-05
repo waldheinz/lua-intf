@@ -13,7 +13,7 @@ static void string_set_same(benchmark::State & state) {
     }
 }
 
-BENCHMARK(string_set_same)->Range(1, 1024);
+BENCHMARK(string_set_same)->Range(1, 2048);
 
 static void string_get(benchmark::State & state) {
     LuaIntf::LuaContext ctx { false };
@@ -25,4 +25,15 @@ static void string_get(benchmark::State & state) {
     }
 }
 
-BENCHMARK(string_get)->Range(1, 1024);;
+BENCHMARK(string_get)->Range(1, 2048);;
+
+static void string_view_get(benchmark::State & state) {
+    LuaIntf::LuaContext ctx { false };
+    ctx.setGlobal("foo", std::string(state.range(0), 'x'));
+
+    for (auto _ : state) {
+        benchmark::DoNotOptimize(ctx.getGlobal<std::string_view>("foo"));
+    }
+}
+
+BENCHMARK(string_view_get)->Range(1, 2048);;

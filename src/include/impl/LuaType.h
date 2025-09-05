@@ -339,6 +339,29 @@ struct LuaTypeMapping <std::string>
 
 //---------------------------------------------------------------------------
 
+template <>
+struct LuaTypeMapping <std::string_view>
+{
+    static void push(lua_State* L, std::string_view str)
+    {
+        lua_pushlstring(L, str.data(), str.length());
+    }
+
+    static std::string_view get(lua_State* L, int index)
+    {
+        size_t len;
+        const char* p = luaL_checklstring(L, index, &len);
+        return { p, len };
+    }
+
+    static std::string_view opt(lua_State* L, int index, std::string_view def)
+    {
+        return lua_isnoneornil(L, index) ? def : get(L, index);
+    }
+};
+
+//---------------------------------------------------------------------------
+
 #if LUAINTF_STD_WIDE_STRING
 
 template <typename CH>
