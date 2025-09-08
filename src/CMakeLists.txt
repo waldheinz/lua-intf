@@ -1,10 +1,45 @@
-cmake_minimum_required(VERSION 3.15)
-project(LuaIntf LANGUAGES CXX)
+cmake_minimum_required(VERSION 3.18)
+project(LuaIntf LANGUAGES C CXX)
+
 include(GNUInstallDirs)
+include(FetchContent)
 
-option(ENABLE_BENCH, "Build Benchmarks")
+option(ENABLE_BENCH "Build Benchmarks")
+option(BUNDLE_LUA "Use a bundled Lua" ON)
 
-find_package(Lua REQUIRED)
+set(luaIntf_TARGETS LuaIntf)
+
+if(BUNDLE_LUA)
+    message(STATUS "Building Lua from source")
+
+    FetchContent_Declare(
+        lua
+        URL https://www.lua.org/ftp/lua-5.4.8.tar.gz
+        URL_HASH SHA256=4f18ddae154e793e46eeab727c59ef1c0c0c2b744e7b94219710d76f530629ae
+        DOWNLOAD_EXTRACT_TIMESTAMP True
+    )
+    FetchContent_MakeAvailable(lua)
+    file(GLOB LUA_SRC "${lua_SOURCE_DIR}/src/*.c")
+    list(REMOVE_ITEM LUA_SRC "${lua_SOURCE_DIR}/src/lua.c" "${lua_SOURCE_DIR}/src/luac.c")
+    add_library(lua STATIC ${LUA_SRC})
+    target_compile_options(lua PRIVATE -x c++ -fPIC -g -O3 -fno-omit-frame-pointer -DNDEBUG)
+    target_compile_definitions(lua PUBLIC -DLUA_USE_POSIX)
+
+    target_include_directories(lua PUBLIC
+        $<BUILD_INTERFACE:${lua_SOURCE_DIR}/src>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+    )
+
+    if(UNIX AND NOT APPLE)
+        target_link_libraries(lua PRIVATE m)
+    endif()
+
+    set(LUA_LIBRARIES lua)
+    set(LUA_INCLUDE_DIR "${lua_SOURCE_DIR}/src")
+    list(APPEND luaIntf_TARGETS lua)
+else()
+    find_package(Lua REQUIRED)
+endif()
 
 add_library(LuaIntf SHARED
     CppBindClass.cpp
@@ -64,13 +99,26 @@ install(
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/LuaIntf
 )
 
-target_compile_definitions(LuaIntf PUBLIC -DLUAINTF_HEADERS_ONLY=0)
+if(BUNDLE_LUA)
+    install(
+        FILES
+            ${lua_SOURCE_DIR}/src/lua.h
+            ${lua_SOURCE_DIR}/src/luaconf.h
+            ${lua_SOURCE_DIR}/src/lualib.h
+            ${lua_SOURCE_DIR}/src/lauxlib.h
+            ${lua_SOURCE_DIR}/src/lua.hpp
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+    )
+endif()
+
+target_compile_definitions(LuaIntf PUBLIC -DLUAINTF_HEADERS_ONLY=0 LUAINTF_LINK_LUA_COMPILED_IN_CXX=1)
 target_compile_features(LuaIntf PUBLIC cxx_std_17)
 
 install(
-    TARGETS LuaIntf
+    TARGETS ${luaIntf_TARGETS}
     EXPORT LuaIntfTargets
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
 
@@ -83,4 +131,4 @@ install(
     DESTINATION ${INSTALL_CONFIGDIR}
 )
 
-export(TARGETS LuaIntf NAMESPACE LuaIntf:: FILE LuaIntfTargets.cmake)
+export(TARGETS ${luaIntf_TARGETS} NAMESPACE LuaIntf:: FILE LuaIntfTargets.cmake)
