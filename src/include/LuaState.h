@@ -33,6 +33,7 @@
 #include <cassert>
 #include <cstring>
 #include <exception>
+#include <optional>
 #include <string>
 #include <type_traits>
 

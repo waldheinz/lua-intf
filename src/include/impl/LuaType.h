@@ -362,6 +362,27 @@ struct LuaTypeMapping <std::string_view>
 
 //---------------------------------------------------------------------------
 
+template <typename T>
+struct LuaTypeMapping<std::optional<T>> {
+    static void push(lua_State * L, std::optional<T> const & o) {
+        if (o.has_value()) {
+            LuaType<T>::push(L, *o);
+        } else {
+            lua_pushnil(L);
+        }
+    }
+
+    static std::optional<T> get(lua_State * L, int index) {
+        if (lua_isnoneornil(L, index)) {
+            return std::nullopt;
+        } else {
+            return { LuaType<T>::get(L, index) };
+        }
+    }
+};
+
+//---------------------------------------------------------------------------
+
 #if LUAINTF_STD_WIDE_STRING
 
 template <typename CH>
