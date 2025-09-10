@@ -419,11 +419,11 @@ struct CppObjectTraits
 
 //---------------------------------------------------------------------------
 
-template <typename SP, typename OBJ, bool IS_SHARED, bool IS_REF>
+template <typename SP, typename OBJ, bool IS_SHARED>
 struct LuaCppObjectFactory;
 
 template <typename T>
-struct LuaCppObjectFactory <T, T, false, false>
+struct LuaCppObjectFactory <T, T, false>
 {
     static void push(lua_State* L, const T& obj, bool is_const)
     {
@@ -436,22 +436,8 @@ struct LuaCppObjectFactory <T, T, false, false>
     }
 };
 
-template <typename T>
-struct LuaCppObjectFactory <T, T, false, true>
-{
-    static void push(lua_State* L, const T& obj, bool is_const)
-    {
-        CppObjectPtr::pushToStack(L, const_cast<T*>(&obj), is_const);
-    }
-
-    static T& cast(lua_State*, CppObject* obj)
-    {
-        return *static_cast<T*>(obj->objectPtr());
-    }
-};
-
 template <typename SP, typename T>
-struct LuaCppObjectFactory <SP, T, true, true>
+struct LuaCppObjectFactory <SP, T, true>
 {
     static void push(lua_State* L, const SP& sp, bool is_const)
     {
@@ -474,27 +460,26 @@ struct LuaCppObjectFactory <SP, T, true, true>
 //---------------------------------------------------------------------------
 
 /**
- * Lua conversion for reference or value to the class type,
+ * Lua conversion for value to the class type,
  * this will catch all C++ class unless LuaTypeMapping<> exists.
  */
-template <typename T, bool IS_CONST, bool IS_REF>
+template <typename T>
 struct LuaClassMapping
 {
     using ObjectType = typename CppObjectTraits<T>::ObjectType;
 
     static constexpr bool isShared = CppObjectTraits<T>::isSharedPtr;
-    static constexpr bool isRef = isShared ? true : IS_REF;
-    static constexpr bool isConst = isShared ? CppObjectTraits<T>::isSharedConst : IS_CONST;
+    static constexpr bool isConst = isShared ? CppObjectTraits<T>::isSharedConst : false;
 
     static void push(lua_State* L, const T& t)
     {
-        LuaCppObjectFactory<T, ObjectType, isShared, isRef>::push(L, t, isConst);
+        LuaCppObjectFactory<T, ObjectType, isShared>::push(L, t, isConst);
     }
 
     static T& get(lua_State* L, int index)
     {
         CppObject* obj = CppObject::getObject<ObjectType>(L, index, isConst);
-        return LuaCppObjectFactory<T, ObjectType, isShared, isRef>::cast(L, obj);
+        return LuaCppObjectFactory<T, ObjectType, isShared>::cast(L, obj);
     }
 
     static const T& opt(lua_State* L, int index, const T& def)

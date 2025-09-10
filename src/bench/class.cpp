@@ -72,7 +72,7 @@ static void register_lua(LuaIntf::LuaContext & ctx) {
     .beginClass<size_double>("size_double")
         .addConstructor(LUA_ARGS(double, double))
         .addVariable("w", &size_double::w)
-        .addVariableRef("h", &size_double::h)
+        .addVariable("h", &size_double::h)
     .endClass()
     .beginClass<rect>("rect")
         .addConstructor(LUA_ARGS(double, double, double, double))

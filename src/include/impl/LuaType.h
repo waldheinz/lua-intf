@@ -41,7 +41,7 @@ enum class LuaTypeID
 template <typename T, typename ENABLED = void>
 struct LuaTypeMapping;
 
-template <typename T, bool IS_CONST, bool IS_REF>
+template <typename T>
 struct LuaClassMapping;
 
 //---------------------------------------------------------------------------
@@ -67,9 +67,7 @@ struct LuaType
     : std::conditional<
         std::is_class<typename std::decay<T>::type>::value
             && !LuaTypeMappingExists<typename std::decay<T>::type>::value,
-        LuaClassMapping<typename std::decay<T>::type,
-            std::is_const<typename std::remove_reference<T>::type>::value,
-            std::is_reference<T>::value>,
+        LuaClassMapping<typename std::decay<T>::type>,
         LuaTypeMapping<typename std::decay<T>::type>
     >::type {};
 

@@ -759,7 +759,6 @@ public:
     /**
      * Add or replace a non-const data member.
      * The value return to lua is pass-by-value, that will create a local copy in lua.
-     * This is different from addVariableRef, which is pass-by-reference, and allow direct access to the variable.
      * This apply only to the class type, the primitive types are always pass-by-value.
      */
     template <typename V>
@@ -777,65 +776,12 @@ public:
     /**
      * Add or replace a const read-only data member.
      * The value return to lua is pass-by-value, that will create a local copy in lua.
-     * This is different from addVariableRef, which is pass-by-reference, and allow direct access to the variable.
      * This apply only to the class type, the primitive types are always pass-by-value.
      */
     template <typename V>
     CppBindClass<T, PARENT>& addVariable(const char* name, const V T::* v)
     {
         setMemberGetter(name, LuaRef::createFunction(state(), &CppBindClassVariableGetter<T, V>::call, v));
-        setMemberReadOnly(name);
-        return *this;
-    }
-
-    /**
-     * Add or replace a non-const data member.
-     * The value return to lua is pass-by-reference, and allow direct access to the variable.
-     * This is different from addVariable, which is pass-by-value, and will create a local copy upon access.
-     * This apply only to the class type, the primitive types are always pass-by-value.
-     */
-    template <typename V>
-    typename std::enable_if<std::is_copy_assignable<V>::value, CppBindClass<T, PARENT>&>::type
-        addVariableRef(const char* name, V T::* v, bool writable = true)
-    {
-        setMemberGetter(name,
-            LuaRef::createFunction(state(), &CppBindClassVariableGetter<T, V, V&>::call, v),
-            LuaRef::createFunction(state(), &CppBindClassVariableGetter<T, V, const V&>::call, v));
-        if (writable) {
-            setMemberSetter(name, LuaRef::createFunction(state(), &CppBindClassVariableSetter<T, V>::call, v));
-        } else {
-            setMemberReadOnly(name);
-        }
-        return *this;
-    }
-
-    /**
-     * Add or replace a non-const data member.
-     * The value return to lua is pass-by-reference, and allow direct access to the variable.
-     * This is different from addVariable, which is pass-by-value, and will create a local copy upon access.
-     * This apply only to the class type, the primitive types are always pass-by-value.
-     */
-    template <typename V>
-    typename std::enable_if<!std::is_copy_assignable<V>::value, CppBindClass<T, PARENT>&>::type
-        addVariableRef(const char* name, V T::* v)
-    {
-        setMemberGetter(name,
-            LuaRef::createFunction(state(), &CppBindClassVariableGetter<T, V, V&>::call, v),
-            LuaRef::createFunction(state(), &CppBindClassVariableGetter<T, V, const V&>::call, v));
-        setMemberReadOnly(name);
-        return *this;
-    }
-
-    /**
-     * Add or replace a read-only data member.
-     * The value return to lua is pass-by-reference, and allow direct access to the variable.
-     * This is different from addVariable, which is pass-by-value, and will create a local copy upon access.
-     * This apply only to the class type, the primitive types are always pass-by-value.
-     */
-    template <typename V>
-    CppBindClass<T, PARENT>& addVariableRef(const char* name, const V T::* v)
-    {
-        setMemberGetter(name, LuaRef::createFunction(state(), &CppBindClassVariableGetter<T, V, const V&>::call, v));
         setMemberReadOnly(name);
         return *this;
     }
