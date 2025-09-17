@@ -377,6 +377,10 @@ struct LuaTypeMapping<std::optional<T>> {
             return { LuaType<T>::get(L, index) };
         }
     }
+
+    static std::optional<T> opt(lua_State* L, int index, std::optional<T> const & def) {
+        return lua_isnoneornil(L, index) ? def : get(L, index);
+    }
 };
 
 //---------------------------------------------------------------------------
