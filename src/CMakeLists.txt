@@ -69,6 +69,7 @@ if(ENABLE_BENCH)
         bench/class.cpp
         bench/main.cpp
         bench/string.cpp
+        bench/table.cpp
         bench/unordered_map.cpp
         bench/vector.cpp
     )
@@ -112,7 +113,7 @@ if(BUNDLE_LUA)
 endif()
 
 target_compile_definitions(LuaIntf PUBLIC -DLUAINTF_HEADERS_ONLY=0 LUAINTF_LINK_LUA_COMPILED_IN_CXX=1)
-target_compile_features(LuaIntf PUBLIC cxx_std_17)
+target_compile_features(LuaIntf PUBLIC cxx_std_20)
 
 install(
     TARGETS ${luaIntf_TARGETS}

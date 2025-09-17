@@ -1035,6 +1035,17 @@ public:
         return n;
     }
 
+    bool has(char const * key) const {
+        pushToStack();
+        auto const tp = lua_getfield(L, -1, key);
+        lua_pop(L, 2);
+        return tp != static_cast<int>(LuaTypeID::NIL);
+    }
+
+    bool has(std::string const & key) const {
+        return has(key.c_str());
+    }
+
     /**
      * Test whether the field is in this table.
      * This may raise Lua error or throw LuaException if K is not convertible.
@@ -1043,6 +1054,7 @@ public:
      * @return true if field is available
      */
     template <typename K>
+    requires (!std::same_as<std::remove_reference_t<K>, std::string>)
     bool has(K && key) const
     {
         pushToStack();
@@ -1053,6 +1065,20 @@ public:
         return ok;
     }
 
+    template <typename V = LuaRef>
+    V get(char const * key) const {
+        pushToStack();
+        lua_getfield(L, -1, key);
+        V t = Lua::get<V>(L, -1);
+        lua_pop(L, 2);
+        return t;
+    }
+
+    template <typename V = LuaRef>
+    V get(std::string const & key) const {
+        return get<V>(key.c_str());
+    }
+
     /**
      * Look up field in this table.
      * This may raise Lua error or throw LuaException if K or V is not convertible.
@@ -1061,6 +1087,7 @@ public:
      * @return field value
      */
     template <typename V = LuaRef, typename K>
+    requires (!std::same_as<std::remove_reference_t<K>, std::string>)
     V get(K && key) const
     {
         pushToStack();
