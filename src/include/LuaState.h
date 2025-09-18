@@ -594,8 +594,8 @@ public:
     bool getSubTable(int idx, const char* field) const
         { return luaL_getsubtable(L, idx, field) != 0; }
 
-    void getField(int table_idx, const char* field) const
-        { lua_getfield(L, table_idx, field); }
+    LuaTypeID getField(int table_idx, const char* field) const
+        { return static_cast<LuaTypeID>(lua_getfield(L, table_idx, field)); }
 
 #if LUA_VERSION_NUM >= 503
     void getField(int table_idx, int field) const
@@ -883,6 +883,32 @@ public:
     template <typename T>
     T optValue(int index, const T& def) const
         { return Lua::opt<T>(L, index, def); }
+
+    template <typename T>
+    T popField(int table_idx, char const * key) const {
+        getField(table_idx, key);
+        return popValue<T>();
+    }
+
+    template <typename T>
+    T popField(int table_idx, char const * key, T const & def) const {
+        if (getField(table_idx, key) == LuaTypeID::NIL) {
+            pop();
+            return def;
+        } else {
+            return popValue<T>();
+        }
+    }
+
+    bool hasField(int table_idx, char const * key) const {
+        return getFieldType(table_idx, key) != LuaTypeID::NIL;
+    }
+
+    LuaTypeID getFieldType(int table_idx, char const * key) const {
+        auto const tp = getField(table_idx, key);
+        pop();
+        return tp;
+    }
 
     template <typename T>
     T popValue() const
