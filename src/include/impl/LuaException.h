@@ -24,7 +24,7 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-class LuaException : public std::exception
+class LuaException : public std::runtime_error
 {
 public:
     explicit LuaException(lua_State* L) noexcept
