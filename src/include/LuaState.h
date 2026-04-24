@@ -42,10 +42,11 @@
 #include <codecvt>
 #endif
 
+#include "impl/LuaException.h"
+
 namespace LuaIntf
 {
 
-#include "impl/LuaException.h"
 #include "impl/LuaType.h"
 
 class LuaRef;

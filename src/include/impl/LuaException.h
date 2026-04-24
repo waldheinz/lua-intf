@@ -24,30 +24,18 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
+#include <stdexcept>
+
+namespace LuaIntf
+{
+
 class LuaException : public std::runtime_error
 {
 public:
-    explicit LuaException(lua_State* L) noexcept
-    {
-        if (lua_gettop(L) > 0) {
-            m_what = lua_tostring(L, -1);
-        } else {
-            m_what = "unknown error";
-        }
-    }
-
-    explicit LuaException(const char* msg) noexcept
-        : m_what(msg)
-        {}
-
-    explicit LuaException(const std::string& msg) noexcept
-        : m_what(msg)
-        {}
-
-    const char* what() const noexcept
-    {
-        return m_what.c_str();
-    }
+    explicit LuaException(lua_State * L)
+        : std::runtime_error(lua_gettop(L) > 0 ? lua_tostring(L, -1) : "unknown error") {}
+    explicit LuaException(const char * msg) : std::runtime_error(msg) {}
+    explicit LuaException(const std::string & msg) : std::runtime_error(msg) {}
 
     static int traceback(lua_State* L)
     {
@@ -66,7 +54,6 @@ public:
         lua_call(L, 1, 1);      // call debug.traceback
         return 1;
     }
-
-private:
-    std::string m_what;
 };
+
+}
