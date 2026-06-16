@@ -88,7 +88,7 @@ struct LuaTypeMapping <bool>
 
     static bool opt(lua_State* L, int index, bool def)
     {
-        return lua_isnone(L, index) ? def : lua_toboolean(L, index) != 0;
+        return lua_isnoneornil(L, index) ? def : lua_toboolean(L, index) != 0;
     }
 };
 
